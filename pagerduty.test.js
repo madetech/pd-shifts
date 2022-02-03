@@ -142,9 +142,9 @@ describe("getShiftsByUser()", () => {
     });
 
     // Then
-    expect(shifts).toHaveProperty('[0].Alice[0].start', '2022-01-02T09:00:00+00:00');
-    expect(shifts).toHaveProperty('[0].Alice[0].end', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('[1].Bob[0].start', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('[1].Bob[0].end', '2022-01-04T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Bob[0].end', '2022-01-04T09:00:00+00:00');
   });
 });

@@ -1,13 +1,21 @@
 const { api } = require('@pagerduty/pdjs');
 
-async function getShiftsByUser({ from, until, token, schedules }) {
-  const shifts = await Promise.all(
-    schedules.map(async schedule =>
-      await getScheduleShiftsByUser({ from, until, token, schedule })
-    )
+async function getShiftsByUser({ from, until, token, schedules: scheduleIds }) {
+  const schedules = await Promise.all(
+    scheduleIds.map(id => getScheduleShiftsByUser({ from, until, token, schedule: id }))
   );
 
-  return shifts;
+  return schedules.reduce((allShifts, schedule) => {
+    Object.keys(schedule).forEach(user => {
+      if(!allShifts[user]) {
+        allShifts[user] = [];
+      }
+
+      allShifts[user] = allShifts[user].concat(schedule[user]);
+    });
+
+    return allShifts;
+  }, {});
 }
 
 async function getScheduleShiftsByUser({ from, until, token, schedule }) {
