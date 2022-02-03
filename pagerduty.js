@@ -1,4 +1,5 @@
 const { api } = require('@pagerduty/pdjs');
+const { isWeekend } = require('./shifts.js');
 
 async function getShiftsByUser({ from, until, token, schedules: scheduleIds }) {
   const schedules = await Promise.all(
@@ -31,7 +32,7 @@ async function getScheduleShiftsByUser({ from, until, token, schedule }) {
       shifts[user] = [];
     }
 
-    shifts[user].push({ start, end });
+    shifts[user].push({ start, end, isWeekend: isWeekend(shift) });
     return shifts;
   }, {});
 }
