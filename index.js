@@ -1,6 +1,7 @@
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 const { getShiftsByUser } = require('./pagerduty.js');
+const tally = require('./tally.js');
 
 async function main() {
   const argv = yargs(hideBin(process.argv))
@@ -26,8 +27,8 @@ async function main() {
     .parse();
 
   const shifts = await getShiftsByUser(argv);
-
-  console.log(shifts);
+  const totals = tally(shifts);
+  console.log(totals);
 }
 
 main();
