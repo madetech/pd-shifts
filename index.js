@@ -26,6 +26,7 @@ async function main() {
     .parse();
 
   const shifts = await getShiftsByUser(argv);
+
   console.log(shifts);
 }
 
