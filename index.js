@@ -1,5 +1,7 @@
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
+
+const generateCsv = require('./csv.js');
 const { getShiftsByUser } = require('./pagerduty.js');
 const tally = require('./tally.js');
 
@@ -28,7 +30,8 @@ async function main() {
 
   const shifts = await getShiftsByUser(argv);
   const totals = tally(shifts);
-  console.log(totals);
+
+  console.log(generateCsv(totals));
 }
 
 main();
