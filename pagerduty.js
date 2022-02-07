@@ -21,8 +21,11 @@ async function getShiftsByUser({ from, until, token, schedules: scheduleIds, max
 }
 
 async function getScheduleShiftsByUser({ from, until, token, schedule, maxShiftLength }) {
+  const queryFrom = dayjs(from).subtract(maxShiftLength, 'hour').format('YYYY-MM-DD');
+  const queryUntil = dayjs(until).format('YYYY-MM-DD');
+
   const pd = api({ token });
-  const pdSchedule = await pd.get(`/schedules/${schedule}?since=${from}&until=${until}`);
+  const pdSchedule = await pd.get(`/schedules/${schedule}?since=${queryFrom}&until=${queryUntil}`);
   const scheduleEntries = pdSchedule.data.schedule.final_schedule.rendered_schedule_entries;
 
   return scheduleEntries.reduce((shifts, shift) => {
@@ -32,6 +35,17 @@ async function getScheduleShiftsByUser({ from, until, token, schedule, maxShiftL
       shifts[user] = [];
     }
 
+    const addShift = ({ start, end }) => {
+      if (start.isAfter(from) && start.isBefore(until)) {
+        shifts[user].push({
+          start: start.toISOString(),
+          end: end.toISOString(),
+          isWeekend: isWeekend({ start }),
+          isBankHoliday: isBankHoliday({ start }),
+        });
+      }
+    };
+
     const { start: startString, end: endString } = shift;
     const start = dayjs(startString);
     const end = dayjs(endString);
@@ -40,23 +54,12 @@ async function getScheduleShiftsByUser({ from, until, token, schedule, maxShiftL
     let maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
 
     while(maxShiftEnd.isBefore(end)) {
-      shifts[user].push({
-        start: shiftStart,
-        end: maxShiftEnd,
-        isWeekend: isWeekend({ start: shiftStart }),
-        isBankHoliday: isBankHoliday({ start: shiftStart }),
-      });
-
+      addShift({ start: shiftStart, end: maxShiftEnd });
       shiftStart = maxShiftEnd;
       maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
     }
 
-    shifts[user].push({
-      start: shiftStart,
-      end,
-      isWeekend: isWeekend({ start: shiftStart }),
-      isBankHoliday: isBankHoliday({ start: shiftStart }),
-    });
+    addShift({ start: shiftStart, end });
 
     return shifts;
   }, {});
