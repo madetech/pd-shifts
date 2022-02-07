@@ -1,4 +1,5 @@
 const { api } = require('@pagerduty/pdjs');
+const dayjs = require("dayjs");
 const { getScheduleShiftsByUser, getShiftsByUser } = require('./pagerduty');
 
 jest.mock('@pagerduty/pdjs');
@@ -58,12 +59,12 @@ describe("getScheduleShiftsByUser()", () => {
     const shifts = await getScheduleShiftsByUser(fakeParams);
 
     // Then
-    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Bob[0].end', '2022-01-04T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Charlie[0].start', '2022-01-04T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Charlie[0].end', '2022-01-04T17:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].start', dayjs('2022-01-02T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Alice[0].end', dayjs('2022-01-03T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Bob[0].start', dayjs('2022-01-03T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Bob[0].end', dayjs('2022-01-04T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Charlie[0].start', dayjs('2022-01-04T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Charlie[0].end', dayjs('2022-01-04T17:00:00+00:00'));
   });
 
   it("Aggregates shifts for the same user", async () => {
@@ -90,12 +91,12 @@ describe("getScheduleShiftsByUser()", () => {
     const shifts = await getScheduleShiftsByUser(fakeParams);
 
     // Then
-    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Alice[1].start', '2022-01-03T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Alice[1].end', '2022-01-04T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Alice[2].start', '2022-01-04T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Alice[2].end', '2022-01-04T17:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].start', dayjs('2022-01-02T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Alice[0].end', dayjs('2022-01-03T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Alice[1].start', dayjs('2022-01-03T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Alice[1].end', dayjs('2022-01-04T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Alice[2].start', dayjs('2022-01-04T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Alice[2].end', dayjs('2022-01-04T17:00:00+00:00'));
   });
 
   it("Uses schedule, from and until parameters to query PagerDuty API", async () => {
@@ -159,9 +160,9 @@ describe("getShiftsByUser()", () => {
     });
 
     // Then
-    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00.000Z');
-    expect(shifts).toHaveProperty('Bob[0].end', '2022-01-04T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].start', dayjs('2022-01-02T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Alice[0].end', dayjs('2022-01-03T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Bob[0].start', dayjs('2022-01-03T09:00:00+00:00'));
+    expect(shifts).toHaveProperty('Bob[0].end', dayjs('2022-01-04T09:00:00+00:00'));
   });
 });

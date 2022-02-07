@@ -26,33 +26,36 @@ async function getScheduleShiftsByUser({ from, until, token, schedule, maxShiftL
   const scheduleEntries = pdSchedule.data.schedule.final_schedule.rendered_schedule_entries;
 
   return scheduleEntries.reduce((shifts, shift) => {
-    const { start, end } = shift;
     const user = shift.user.summary;
 
     if (!shifts[user]) {
       shifts[user] = [];
     }
 
-    let shiftStart = dayjs(start);
-    let shiftEnd = shiftStart.add(maxShiftLength, 'hour');
+    const { start: startString, end: endString } = shift;
+    const start = dayjs(startString);
+    const end = dayjs(endString);
 
-    while(shiftEnd.isBefore(end)) {
+    let shiftStart = start;
+    let maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
+
+    while(maxShiftEnd.isBefore(end)) {
       shifts[user].push({
-        start: shiftStart.toISOString(),
-        end: shiftEnd.toISOString(),
-        isWeekend: isWeekend({ start: shiftStart.toISOString() }),
-        isBankHoliday: isBankHoliday({ start: shiftStart.toISOString() }),
+        start: shiftStart,
+        end: maxShiftEnd,
+        isWeekend: isWeekend({ start: shiftStart }),
+        isBankHoliday: isBankHoliday({ start: shiftStart }),
       });
 
-      shiftStart = shiftEnd;
-      shiftEnd = shiftStart.add(maxShiftLength, 'hour');
+      shiftStart = maxShiftEnd;
+      maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
     }
 
     shifts[user].push({
-      start: shiftStart.toISOString(),
+      start: shiftStart,
       end,
-      isWeekend: isWeekend(shift),
-      isBankHoliday: isBankHoliday(shift)
+      isWeekend: isWeekend({ start: shiftStart }),
+      isBankHoliday: isBankHoliday({ start: shiftStart }),
     });
 
     return shifts;
