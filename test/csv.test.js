@@ -1,4 +1,4 @@
-const generateCsv = require("./csv");
+const generateCsv = require("../src/csv");
 
 describe("generateCsv()", () => {
   it("should return a string containing headers on the first line", () => {

@@ -1,9 +1,9 @@
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
-const generateCsv = require('./csv.js');
-const { getShiftsByUser } = require('./pagerduty.js');
-const tally = require('./tally.js');
+const generateCsv = require('./src/csv.js');
+const { getShiftsByUser } = require('./src/pagerduty.js');
+const tally = require('./src/tally.js');
 
 async function main() {
   const argv = yargs(hideBin(process.argv))

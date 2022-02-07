@@ -1,5 +1,5 @@
 const { api } = require('@pagerduty/pdjs');
-const { getScheduleShiftsByUser, getShiftsByUser } = require('./pagerduty');
+const { getScheduleShiftsByUser, getShiftsByUser } = require('../src/pagerduty');
 
 jest.mock('@pagerduty/pdjs');
 const pagerdutyApi = jest.fn();

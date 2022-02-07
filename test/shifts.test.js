@@ -1,5 +1,5 @@
 const dayjs = require("dayjs");
-const { isWeekend, isBankHoliday } = require("./shifts");
+const { isWeekend, isBankHoliday } = require("../src/shifts");
 
 describe("isWeekend()", () => {
   it.each([

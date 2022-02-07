@@ -1,4 +1,4 @@
-const tally = require("./tally");
+const tally = require("../src/tally");
 
 describe("tally()", () => {
   it("returns an object containing a count for each user", () => {
