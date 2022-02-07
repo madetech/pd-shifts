@@ -36,6 +36,16 @@ async function main() {
     })
     .demandOption(["from", "until"], "Please specify the time period for the export")
     .demandOption("token", "Please specify a PagerDuty API token")
+    .example([
+      [
+        "$0 --token abcdeFGhIJklMn123456 --from 2022-01-01 --until 2022-02-01",
+        "Generate a CSV breakdown of all shifts for the default schedules in January 2022"
+      ],
+      [
+        "$0 -t abcdeFGhIJklMn123456 -f 2022-01-01 -u 2022-02-01 -s PABCD12 -l",
+        "Generate a JSON listing of all shifts for a custom schedule in January 2022"
+      ],
+    ])
     .parse();
 
   const shifts = await getShiftsByUser(argv);
