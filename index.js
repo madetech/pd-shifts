@@ -24,6 +24,12 @@ async function main() {
       describe: "ID(s) of the PagerDuty schedules to count shifts from",
       default: ["PQHJLHS", "P0SNTI2"]
     })
+    .option("list-shifts", {
+      alias: "l",
+      type: "boolean",
+      describe: "Output a JSON listing of the shifts for each user. Helpful for debugging",
+      default: false,
+    })
     .option("max-shift-length", {
       describe: "The maximum length of a single shift, in hours",
       default: 24
@@ -33,9 +39,14 @@ async function main() {
     .parse();
 
   const shifts = await getShiftsByUser(argv);
-  const totals = tally(shifts);
 
-  console.log(generateCsv(totals));
+  if (argv.listShifts) {
+    console.log(shifts);
+  } else {
+    const totals = tally(shifts);
+    const csv = generateCsv(totals);
+    console.log(csv);
+  }
 }
 
 main();
