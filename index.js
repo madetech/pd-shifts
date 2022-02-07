@@ -24,6 +24,10 @@ async function main() {
       describe: "ID(s) of the PagerDuty schedules to count shifts from",
       default: ["PQHJLHS", "P0SNTI2"]
     })
+    .option("max-shift-length", {
+      describe: "The maximum length of a single shift, in hours",
+      default: 24
+    })
     .demandOption(["from", "until"], "Please specify the time period for the export")
     .demandOption("token", "Please specify a PagerDuty API token")
     .parse();

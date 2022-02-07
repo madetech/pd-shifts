@@ -1,9 +1,10 @@
 const { api } = require('@pagerduty/pdjs');
+const dayjs = require('dayjs');
 const { isWeekend, isBankHoliday } = require('./shifts.js');
 
-async function getShiftsByUser({ from, until, token, schedules: scheduleIds }) {
+async function getShiftsByUser({ from, until, token, schedules: scheduleIds, maxShiftLength }) {
   const schedules = await Promise.all(
-    scheduleIds.map(id => getScheduleShiftsByUser({ from, until, token, schedule: id }))
+    scheduleIds.map(id => getScheduleShiftsByUser({ from, until, token, schedule: id, maxShiftLength }))
   );
 
   return schedules.reduce((allShifts, schedule) => {
@@ -19,7 +20,7 @@ async function getShiftsByUser({ from, until, token, schedules: scheduleIds }) {
   }, {});
 }
 
-async function getScheduleShiftsByUser({ from, until, token, schedule }) {
+async function getScheduleShiftsByUser({ from, until, token, schedule, maxShiftLength }) {
   const pd = api({ token });
   const pdSchedule = await pd.get(`/schedules/${schedule}?since=${from}&until=${until}`);
   const scheduleEntries = pdSchedule.data.schedule.final_schedule.rendered_schedule_entries;
@@ -32,8 +33,23 @@ async function getScheduleShiftsByUser({ from, until, token, schedule }) {
       shifts[user] = [];
     }
 
+    let shiftStart = dayjs(start);
+    let shiftEnd = shiftStart.add(maxShiftLength, 'hour');
+
+    while(shiftEnd.isBefore(end)) {
+      shifts[user].push({
+        start: shiftStart.toISOString(),
+        end: shiftEnd.toISOString(),
+        isWeekend: isWeekend({ start: shiftStart.toISOString() }),
+        isBankHoliday: isBankHoliday({ start: shiftStart.toISOString() }),
+      });
+
+      shiftStart = shiftEnd;
+      shiftEnd = shiftStart.add(maxShiftLength, 'hour');
+    }
+
     shifts[user].push({
-      start,
+      start: shiftStart.toISOString(),
       end,
       isWeekend: isWeekend(shift),
       isBankHoliday: isBankHoliday(shift)

@@ -58,11 +58,11 @@ describe("getScheduleShiftsByUser()", () => {
     const shifts = await getScheduleShiftsByUser(fakeParams);
 
     // Then
-    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00.000Z');
     expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00.000Z');
     expect(shifts).toHaveProperty('Bob[0].end', '2022-01-04T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Charlie[0].start', '2022-01-04T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Charlie[0].start', '2022-01-04T09:00:00.000Z');
     expect(shifts).toHaveProperty('Charlie[0].end', '2022-01-04T17:00:00+00:00');
   });
 
@@ -90,11 +90,11 @@ describe("getScheduleShiftsByUser()", () => {
     const shifts = await getScheduleShiftsByUser(fakeParams);
 
     // Then
-    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00.000Z');
     expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Alice[1].start', '2022-01-03T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[1].start', '2022-01-03T09:00:00.000Z');
     expect(shifts).toHaveProperty('Alice[1].end', '2022-01-04T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Alice[2].start', '2022-01-04T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[2].start', '2022-01-04T09:00:00.000Z');
     expect(shifts).toHaveProperty('Alice[2].end', '2022-01-04T17:00:00+00:00');
   });
 
@@ -111,6 +111,23 @@ describe("getScheduleShiftsByUser()", () => {
 
     // Then
     expect(pagerdutyApi).toHaveBeenCalledWith(`/schedules/TestSchedule?since=2022-01-01&until=2022-01-08`);
+  });
+
+  it("splits up a single long shift into multiple back-to-back shifts", async () => {
+    // Given
+    pagerdutyApi.mockResolvedValue(makeApiResponse([
+      {
+        start: '2022-01-02T09:00:00+00:00',
+        end: '2022-01-04T17:00:00+00:00',
+        user: { summary: 'Alice' },
+      },
+    ]));
+
+    // When
+    const shifts = await getScheduleShiftsByUser({ ...fakeParams, maxShiftLength: 24 });
+
+    // Then
+    expect(shifts['Alice']).toHaveLength(3);
   });
 });
 
@@ -142,9 +159,9 @@ describe("getShiftsByUser()", () => {
     });
 
     // Then
-    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00.000Z');
     expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00+00:00');
-    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00+00:00');
+    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00.000Z');
     expect(shifts).toHaveProperty('Bob[0].end', '2022-01-04T09:00:00+00:00');
   });
 });

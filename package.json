@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@pagerduty/pdjs": "^2.2.4",
+    "dayjs": "^1.10.7",
     "yargs": "^17.3.1"
   },
   "devDependencies": {
