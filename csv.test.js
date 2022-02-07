@@ -30,4 +30,20 @@ describe("generateCsv()", () => {
     expect(csv).toEqual(expect.stringMatching(/\nBob,4,5,9(\n|$)/));
     expect(csv).toEqual(expect.stringMatching(/\nCharlie,6,7,13(\n|$)/));
   });
+
+  it("should sort CSV rows alphabetically", () => {
+    // Given
+    const totals = {
+      Charlie: { weekdayShifts: 1, weekendShifts: 2, totalShifts: 3 },
+      Alice: { weekdayShifts: 1, weekendShifts: 2, totalShifts: 3 },
+      Bob: { weekdayShifts: 1, weekendShifts: 2, totalShifts: 3 },
+      Dave: { weekdayShifts: 1, weekendShifts: 2, totalShifts: 3 },
+    };
+
+    // When
+    const csv = generateCsv(totals);
+
+    // Then
+    expect(csv).toEqual(expect.stringMatching(/Alice(.|\n)*Bob(.|\n)*Charlie(.|\n)*Dave/));
+  });
 });

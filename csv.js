@@ -1,15 +1,15 @@
 function generateCsv(totals) {
-  const output = [];
-  output.push("User,Weekday Shifts,Weekend Shifts,Total Shifts");
-
-  Object.keys(totals).forEach(user =>
-    output.push([
+  const records = Object.keys(totals).map(user =>
+    [
       user,
       totals[user].weekdayShifts,
       totals[user].weekendShifts,
       totals[user].totalShifts,
-    ].join(","))
+    ].join(",")
   );
+
+  const output = records.sort((a, b) => a[0].localeCompare(b[0]));
+  output.unshift("User,Weekday Shifts,Weekend Shifts,Total Shifts");
 
   return output.join("\n");
 }
