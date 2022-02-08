@@ -22,7 +22,7 @@ async function main() {
     .option("schedules", {
       alias: "s",
       describe: "ID(s) of the PagerDuty schedules to count shifts from",
-      default: ["PQHJLHS", "P0SNTI2"]
+      default: ["PQHJLHS"]
     })
     .option("list-shifts", {
       alias: "l",
