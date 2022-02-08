@@ -1,7 +1,7 @@
-const generateCsv = require("../src/csv");
+const generateCsv = require('../src/csv');
 
-describe("generateCsv()", () => {
-  it("should return a string containing headers on the first line", () => {
+describe('generateCsv()', () => {
+  it('should return a string containing headers on the first line', () => {
     // Given
     const totals = {
       Alice: { weekdayShifts: 1, weekendShifts: 2, totalShifts: 3 },
@@ -14,7 +14,7 @@ describe("generateCsv()", () => {
     expect(csv).toEqual(expect.stringMatching(/^User,Weekday Shifts,Weekend Shifts,Total Shifts(\n|$)/));
   });
 
-  it("should put counts for different users on different lines", () => {
+  it('should put counts for different users on different lines', () => {
     // Given
     const totals = {
       Alice: { weekdayShifts: 1, weekendShifts: 2, totalShifts: 3 },
@@ -31,7 +31,7 @@ describe("generateCsv()", () => {
     expect(csv).toEqual(expect.stringMatching(/\nCharlie,6,7,13(\n|$)/));
   });
 
-  it("should sort CSV rows alphabetically", () => {
+  it('should sort CSV rows alphabetically', () => {
     // Given
     const totals = {
       Charlie: { weekdayShifts: 1, weekendShifts: 2, totalShifts: 3 },

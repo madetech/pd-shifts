@@ -1,4 +1,4 @@
-const bankHolidays = require('./bankHolidays.js');
+const bankHolidays = require('./bankHolidays');
 
 function isWeekend({ start }) {
   const startDay = start.day();

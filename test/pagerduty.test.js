@@ -5,26 +5,26 @@ jest.mock('@pagerduty/pdjs');
 const pagerdutyApi = jest.fn();
 api.mockReturnValue({ get: pagerdutyApi });
 
-const makeApiResponse = (entries => ({
+const makeApiResponse = ((entries) => ({
   data: {
     schedule: {
       final_schedule: {
-        rendered_schedule_entries: entries
-      }
-    }
-  }
+        rendered_schedule_entries: entries,
+      },
+    },
+  },
 }));
 
-describe("getScheduleShiftsByUser()", () => {
+describe('getScheduleShiftsByUser()', () => {
   const fakeParams = {
-    from: "2022-01-01",
-    until: "2022-01-08",
-    token: "fakeToken",
-    schedule: "fakeScheduleId",
+    from: '2022-01-01',
+    until: '2022-01-08',
+    token: 'fakeToken',
+    schedule: 'fakeScheduleId',
     maxShiftLength: 24,
   };
 
-  it("Returns empty object when schedule has no shifts", async () => {
+  it('Returns empty object when schedule has no shifts', async () => {
     // Given
     pagerdutyApi.mockResolvedValue(makeApiResponse([]));
 
@@ -35,7 +35,7 @@ describe("getScheduleShiftsByUser()", () => {
     expect(Object.keys(shifts)).toHaveLength(0);
   });
 
-  it("Returns object with keys for each user that has a shift", async () => {
+  it('Returns object with keys for each user that has a shift', async () => {
     // Given
     pagerdutyApi.mockResolvedValue(makeApiResponse([
       {
@@ -67,7 +67,7 @@ describe("getScheduleShiftsByUser()", () => {
     expect(shifts).toHaveProperty('Charlie[0].end', '2022-01-04T17:00:00.000Z');
   });
 
-  it("Aggregates shifts for the same user", async () => {
+  it('Aggregates shifts for the same user', async () => {
     // Given
     pagerdutyApi.mockResolvedValue(makeApiResponse([
       {
@@ -99,22 +99,22 @@ describe("getScheduleShiftsByUser()", () => {
     expect(shifts).toHaveProperty('Alice[2].end', '2022-01-04T17:00:00.000Z');
   });
 
-  it("Uses schedule, from and until parameters to query PagerDuty API", async () => {
+  it('Uses schedule, from and until parameters to query PagerDuty API', async () => {
     // Given
     const params = {
-      from: "2022-01-01",
-      until: "2022-01-08",
-      schedule: "TestSchedule",
+      from: '2022-01-01',
+      until: '2022-01-08',
+      schedule: 'TestSchedule',
     };
 
     // When
     await getScheduleShiftsByUser({ ...fakeParams, ...params });
 
     // Then
-    expect(pagerdutyApi).toHaveBeenLastCalledWith(`/schedules/TestSchedule?since=2021-12-31&until=2022-01-08`);
+    expect(pagerdutyApi).toHaveBeenLastCalledWith('/schedules/TestSchedule?since=2021-12-31&until=2022-01-08');
   });
 
-  it("splits up a single long shift into multiple back-to-back shifts", async () => {
+  it('splits up a single long shift into multiple back-to-back shifts', async () => {
     // Given
     pagerdutyApi.mockResolvedValue(makeApiResponse([
       {
@@ -128,7 +128,7 @@ describe("getScheduleShiftsByUser()", () => {
     const shifts = await getScheduleShiftsByUser({ ...fakeParams, maxShiftLength: 24 });
 
     // Then
-    expect(shifts['Alice']).toHaveLength(3);
+    expect(shifts.Alice).toHaveLength(3);
   });
 
   it("doesn't count shifts that started outside query range", async () => {
@@ -147,20 +147,20 @@ describe("getScheduleShiftsByUser()", () => {
     ]));
 
     const params = {
-      from: "2022-01-01",
-      until: "2022-01-08",
+      from: '2022-01-01',
+      until: '2022-01-08',
     };
 
     // When
     const shifts = await getScheduleShiftsByUser({ ...fakeParams, ...params });
 
     // Then
-    expect(shifts['Alice']).toHaveLength(1);
+    expect(shifts.Alice).toHaveLength(1);
   });
 });
 
-describe("getShiftsByUser()", () => {
-  it("Merges the output of getScheduleShiftsByUser() for each schedule", async () => {
+describe('getShiftsByUser()', () => {
+  it('Merges the output of getScheduleShiftsByUser() for each schedule', async () => {
     // Given
     pagerdutyApi
       .mockResolvedValueOnce(makeApiResponse([
@@ -180,10 +180,10 @@ describe("getShiftsByUser()", () => {
 
     // When
     const shifts = await getShiftsByUser({
-      from: "2022-01-01",
-      until: "2022-01-08",
-      token: "fakeToken",
-      schedules: ["fakeScheduleId1", "fakeScheduleId2"],
+      from: '2022-01-01',
+      until: '2022-01-08',
+      token: 'fakeToken',
+      schedules: ['fakeScheduleId1', 'fakeScheduleId2'],
     });
 
     // Then
