@@ -46,7 +46,8 @@ Once you have these, you can plug them into the tool to generate your CSV:
 ```sh
 $ pd-shifts \
     --token abcdeFGhIJklMn123456 \
-    --schedules PABCD12,PQRST34 \
+    --schedule PABCD12 \
+    --schedule PQRST34 \
     --from 2022-01-01 \
     --until 2022-02-01 \
     > shifts.csv
@@ -57,7 +58,7 @@ $ pd-shifts \
 - `-f, --from` - The start date of the export (inclusive)
 - `-u, --until` - The end date of the export (exclusive)
 - `-t, --token` - The PagerDuty API token
-- `-s, --schedules` - The ID of a PagerDuty schedule to count shifts from. Multiple comma-separated IDs can be specified.
+- `-s, --schedule` - ID of the PagerDuty schedule to count shifts from. Can be specified multiple times for multiple schedules.
 - `-l, --list-shifts` - Output a JSON listing of the shifts for each user, instead of the regular CSV output. Helpful for debugging.
 - `--max-shift-length` - The maximum length of a single shift, in hours. Default: 24 hours.
     - This is needed because the PagerDuty API 'squashes' together multiple consecutive shifts, and so we need a way of determining at what point to 'chop' them back up again.
