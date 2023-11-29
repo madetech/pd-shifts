@@ -8,9 +8,9 @@ function tally(shiftsByUser) {
       //      totalShifts: shifts.length,
       totalShifts: shifts.length - shifts.filter((shift) => shift.isInHours).length,
       weekendShifts: shifts.filter((shift) => shift.isWeekend || shift.isBankHoliday).length,
-      weekdayShifts: shifts.filter((shift) => !shift.isWeekend
-                                              && !shift.isBankHoliday
-                                              && !shift.isInHours).length,
+      weekdayShifts: shifts.filter((shift) => !shift.isWeekend &&
+                                              !shift.isBankHoliday &&
+                                              !shift.isInHours).length,
       //      weekdayShifts: shifts.filter((shift) => !shift.isWeekend &&
       //                                              !shift.isBankHoliday).length,
 
