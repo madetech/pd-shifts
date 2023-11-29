@@ -1,6 +1,6 @@
 const { api } = require('@pagerduty/pdjs');
 const dayjs = require('dayjs');
-const { isWeekend, isBankHoliday } = require('./shifts');
+const { isWeekend, isBankHoliday, isInHours } = require('./shifts');
 
 async function getScheduleShiftsByUser({
   from, until, token, schedule, maxShiftLength,
@@ -27,6 +27,7 @@ async function getScheduleShiftsByUser({
           end: end.toISOString(),
           isWeekend: isWeekend({ start }),
           isBankHoliday: isBankHoliday({ start }),
+          isInHours: isInHours({ start, end }),
         });
       }
     };
