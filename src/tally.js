@@ -12,7 +12,7 @@ function tally(shiftsByUser) {
                                               && !shift.isBankHoliday
                                               && !shift.isInHours).length,
       //      weekdayShifts: shifts.filter((shift) => !shift.isWeekend &&
-      //                                                !shift.isBankHoliday).length,
+      //                                              !shift.isBankHoliday).length,
 
     };
   });
