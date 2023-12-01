@@ -1,5 +1,5 @@
 const dayjs = require('dayjs');
-const { isWeekend, isBankHoliday } = require('../src/shifts');
+const { isWeekend, isBankHoliday, isInHours } = require('../src/shifts');
 
 describe('isWeekend()', () => {
   it.each([
@@ -50,6 +50,61 @@ describe('isBankHoliday()', () => {
   it("should return false if shift doesn't start on a bank holiday", () => {
     // When
     const result = isBankHoliday({ start: dayjs('2022-01-04T09:00:00+00:00') });
+
+    // Then
+    expect(result).toBe(false);
+  });
+});
+
+describe('isInHours()', () => {
+  it('should return true for a shift entirely within business hours on a weekday', () => {
+    const start = dayjs('2023-11-30T09:00:00+00:00');
+    const end = dayjs('2023-11-30T17:00:00+00:00');
+
+    // When
+    const result = isInHours({ start, end });
+    expect(result).toBe(true);
+  });
+
+  it('should return false for a shift not entirely within business hours on a weekday', () => {
+    const start = dayjs('2023-11-30T08:00:00+00:00');
+    const end = dayjs('2023-11-30T17:00:00+00:00');
+
+    // When
+    const result = isInHours({ start, end });
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it('should return false for an out of hours shift on a weekday', () => {
+    const start = dayjs('2023-11-30T17:00:00+00:00');
+    const end = dayjs('2023-12-01T09:00:00+00:00');
+
+    // When
+    const result = isInHours({ start, end });
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a shift on a weekend', () => {
+    const start = dayjs('2023-12-02T09:00:00+00:00');
+    const end = dayjs('2023-12-03T09:00:00+00:00');
+
+    // When
+    const result = isInHours({ start, end });
+
+    // Then
+    expect(result).toBe(false);
+  });
+
+  it('should return false for a shift on a bank holiday', () => {
+    const start = dayjs('2024-01-01T09:00:00+00:00');
+    const end = dayjs('2024-01-02T09:00:00+00:00');
+
+    // When
+    const result = isInHours({ start, end });
 
     // Then
     expect(result).toBe(false);

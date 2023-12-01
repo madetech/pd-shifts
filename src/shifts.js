@@ -3,32 +3,34 @@ const bankHolidays = require('./bankHolidays');
 function isWeekend({ start }) {
   const startDay = start.day();
 
-  // If the shift starts on a Saturday or Sunday, it's a weekend shift
+  // 6 = Saturday, 0 = Sunday
   return startDay === 6 || startDay === 0;
 }
 
 function isBankHoliday({ start }) {
-  const holidays = bankHolidays;
-  const startString = start.format('YYYY-MM-DD');
+  const formattedDate = start.format('YYYY-MM-DD');
 
-  return holidays.indexOf(startString) >= 0;
+  return bankHolidays.includes(formattedDate);
 }
 
-function getTime(dateTime) {
-  function addZero(n) { return (n < 10 ? '0' : '') + n; }
+function formatTimeComponent(timeComponent) {
+  return timeComponent < 10 ? `0${timeComponent}` : timeComponent.toString();
+}
 
-  const hh = dateTime.hour();
-  const mm = dateTime.minute();
-  const ss = dateTime.second();
-  return `${addZero(hh)}:${addZero(mm)}:${addZero(ss)}`;
+function formattedTime(dateTime) {
+  const hours = formatTimeComponent(dateTime.hour());
+  const minutes = formatTimeComponent(dateTime.minute());
+  const seconds = formatTimeComponent(dateTime.second());
+
+  return `${hours}:${minutes}:${seconds}`;
 }
 
 function isInHours({ start, end }) {
   if (isWeekend({ start }) || isBankHoliday({ start })) {
     return false;
   }
-  const startTime = getTime(start);
-  const endTime = getTime(end);
+  const startTime = formattedTime(start);
+  const endTime = formattedTime(end);
   return start.day() === end.day() && startTime >= '09:00:00' && endTime <= '17:00:00';
 }
 
