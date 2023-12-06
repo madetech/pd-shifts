@@ -5,8 +5,8 @@ const { isWeekend, isBankHoliday, isInHours } = require('./shifts');
 async function getScheduleShiftsByUser({
   from, until, token, schedule, maxShiftLength,
 }) {
-  const queryFrom = dayjs(from).subtract(maxShiftLength, 'hour').format('YYYY-MM-DD');
-  const queryUntil = dayjs(until).format('YYYY-MM-DD');
+  const queryFrom = dayjs(from.concat('T09:00:00.000Z')).format('YYYY-MM-DD HH:mm:ss');
+  const queryUntil = dayjs(until.concat('T09:00:00.000Z')).format('YYYY-MM-DD HH:mm:ss');
 
   const pd = api({ token });
   const pdSchedule = await pd.get(`/schedules/${schedule}?since=${queryFrom}&until=${queryUntil}`);
@@ -21,7 +21,7 @@ async function getScheduleShiftsByUser({
     }
 
     const addShift = ({ start, end }) => {
-      if (start.isAfter(from) && start.isBefore(until)) {
+      if (!start.isBefore(from) && !start.isAfter(until)) {
         shifts[user].push({
           start: start.toISOString(),
           end: end.toISOString(),

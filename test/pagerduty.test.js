@@ -111,7 +111,7 @@ describe('getScheduleShiftsByUser()', () => {
     await getScheduleShiftsByUser({ ...fakeParams, ...params });
 
     // Then
-    expect(pagerdutyApi).toHaveBeenLastCalledWith('/schedules/TestSchedule?since=2021-12-31&until=2022-01-08');
+    expect(pagerdutyApi).toHaveBeenLastCalledWith('/schedules/TestSchedule?since=2022-01-01 09:00:00&until=2022-01-08 09:00:00');
   });
 
   it('splits up a single long shift into multiple back-to-back shifts', async () => {
