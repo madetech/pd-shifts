@@ -1,5 +1,5 @@
 const { api } = require('@pagerduty/pdjs');
-const { getScheduleShiftsByUser, getShiftsByUser } = require('../src/pagerduty');
+const { getScheduleShiftsByUser, getShiftsByUser, formattedDateTime } = require('../src/pagerduty');
 
 jest.mock('@pagerduty/pdjs');
 const pagerdutyApi = jest.fn();
@@ -101,6 +101,23 @@ describe('getScheduleShiftsByUser()', () => {
 
   it('Uses schedule, from and until parameters to query PagerDuty API', async () => {
     // Given
+    pagerdutyApi.mockResolvedValue(makeApiResponse([
+      {
+        start: '2022-01-02T09:00:00+00:00',
+        end: '2022-01-03T09:00:00+00:00',
+        user: { summary: 'Alice' },
+      },
+      {
+        start: '2022-01-03T09:00:00+00:00',
+        end: '2022-01-04T09:00:00+00:00',
+        user: { summary: 'Alice' },
+      },
+      {
+        start: '2022-01-04T09:00:00+00:00',
+        end: '2022-01-04T17:00:00+00:00',
+        user: { summary: 'Alice' },
+      },
+    ]));
     const params = {
       from: '2022-01-01',
       until: '2022-01-08',
@@ -160,6 +177,12 @@ describe('getScheduleShiftsByUser()', () => {
 });
 
 describe('getShiftsByUser()', () => {
+  const fakeParams = {
+    from: '2022-01-01',
+    until: '2022-01-08',
+    token: 'fakeToken',
+    schedules: ['fakeScheduleId1', 'fakeScheduleId2'],
+  };
   it('Merges the output of getScheduleShiftsByUser() for each schedule', async () => {
     // Given
     pagerdutyApi
@@ -179,17 +202,60 @@ describe('getShiftsByUser()', () => {
       ]));
 
     // When
-    const shifts = await getShiftsByUser({
-      from: '2022-01-01',
-      until: '2022-01-08',
-      token: 'fakeToken',
-      schedules: ['fakeScheduleId1', 'fakeScheduleId2'],
-    });
+    const shifts = await getShiftsByUser(fakeParams);
 
     // Then
     expect(shifts).toHaveProperty('Alice[0].start', '2022-01-02T09:00:00.000Z');
     expect(shifts).toHaveProperty('Alice[0].end', '2022-01-03T09:00:00.000Z');
     expect(shifts).toHaveProperty('Bob[0].start', '2022-01-03T09:00:00.000Z');
     expect(shifts).toHaveProperty('Bob[0].end', '2022-01-04T09:00:00.000Z');
+  });
+
+  it('Counts shifts correctly when first start is equal to from', async () => {
+    // Given
+    pagerdutyApi.mockResolvedValue(makeApiResponse([
+      {
+        start: '2022-01-01T09:00:00+00:00',
+        end: '2022-01-02T09:00:00+00:00',
+        user: { summary: 'Alice' },
+      },
+      {
+        start: '2022-01-02T09:00:00+00:00',
+        end: '2022-01-03T09:00:00+00:00',
+        user: { summary: 'Bob' },
+      },
+      {
+        start: '2022-01-03T09:00:00+00:00',
+        end: '2022-01-03T17:00:00+00:00',
+        user: { summary: 'Charlie' },
+      },
+    ]));
+
+    // When
+    const shifts = await getShiftsByUser(fakeParams);
+    // Then
+    expect(shifts).toHaveProperty('Alice[0].start', '2022-01-01T09:00:00.000Z');
+    expect(shifts).toHaveProperty('Alice[0].end', '2022-01-02T09:00:00.000Z');
+    expect(shifts).toHaveProperty('Bob[0].start', '2022-01-02T09:00:00.000Z');
+    expect(shifts).toHaveProperty('Bob[0].end', '2022-01-03T09:00:00.000Z');
+    expect(shifts).toHaveProperty('Charlie[0].start', '2022-01-03T09:00:00.000Z');
+    expect(shifts).toHaveProperty('Charlie[0].end', '2022-01-03T17:00:00.000Z');
+  });
+});
+
+describe('formattedDateTime()', () => {
+  it('returns datetime including queryFrom time and queryUntil time to be equal to 9 am', () => {
+    // Given
+    const from = '2023-11-23';
+    const until = '2023-11-29';
+    const maxShiftLength = 24;
+
+    // When
+    const dateTime = formattedDateTime(from, until, maxShiftLength);
+    // Then
+    expect(dateTime)
+      .toHaveProperty('queryFrom', '2023-11-23 09:00:00');
+    expect(dateTime)
+      .toHaveProperty('queryUntil', '2023-11-29 09:00:00');
   });
 });

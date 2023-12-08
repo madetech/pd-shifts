@@ -2,12 +2,15 @@ const { api } = require('@pagerduty/pdjs');
 const dayjs = require('dayjs');
 const { isWeekend, isBankHoliday, isInHours } = require('./shifts');
 
+function formattedDateTime(from, until) {
+  const queryFrom = dayjs(from.concat('T09:00:00.000Z')).format('YYYY-MM-DD HH:mm:ss');
+  const queryUntil = dayjs(until.concat('T09:00:00.000Z')).format('YYYY-MM-DD HH:mm:ss');
+  return { queryFrom, queryUntil };
+}
 async function getScheduleShiftsByUser({
   from, until, token, schedule, maxShiftLength,
 }) {
-  const queryFrom = dayjs(from.concat('T09:00:00.000Z')).format('YYYY-MM-DD HH:mm:ss');
-  const queryUntil = dayjs(until.concat('T09:00:00.000Z')).format('YYYY-MM-DD HH:mm:ss');
-
+  const { queryFrom, queryUntil } = formattedDateTime(from, until);
   const pd = api({ token });
   const pdSchedule = await pd.get(`/schedules/${schedule}?since=${queryFrom}&until=${queryUntil}`);
   const scheduleEntries = pdSchedule.data.schedule.final_schedule.rendered_schedule_entries;
@@ -21,7 +24,8 @@ async function getScheduleShiftsByUser({
     }
 
     const addShift = ({ start, end }) => {
-      if (!start.isBefore(from) && !start.isAfter(until)) {
+      // if (start.isAfter(from) && start.isBefore(until)) {
+      if (!start.isBefore(queryFrom) && !start.isAfter(queryUntil)) {
         shifts[user].push({
           start: start.toISOString(),
           end: end.toISOString(),
@@ -77,3 +81,4 @@ async function getShiftsByUser({
 
 module.exports.getShiftsByUser = getShiftsByUser;
 module.exports.getScheduleShiftsByUser = getScheduleShiftsByUser;
+module.exports.formattedDateTime = formattedDateTime;
