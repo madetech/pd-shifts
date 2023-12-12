@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 const { api } = require('@pagerduty/pdjs');
 const { getScheduleShiftsByUser, getShiftsByUser, formattedDateTime } = require('../src/pagerduty');
 
@@ -14,6 +15,18 @@ const makeApiResponse = ((entries) => ({
     },
   },
 }));
+
+// pagerdutyApi.mockImplementation(( token ) => {
+//   if (token === 'invalidToken') {
+//     // const error = new Error('Invalid API Token');
+//     // error.status = 401;
+//     // eslint-disable-next-line prefer-promise-reject-errors
+//     return Promise.reject({ response: { status: 401 } });
+//   }
+//   return {
+//     get: pagerdutyApi,
+//   };
+// });
 
 describe('getScheduleShiftsByUser()', () => {
   const fakeParams = {
@@ -173,6 +186,34 @@ describe('getScheduleShiftsByUser()', () => {
 
     // Then
     expect(shifts.Alice).toHaveLength(1);
+  });
+
+  it('handles PagerDuty api failure', async () => {
+    // Given
+    const fakeParamsWithInvalidToken = {
+      ...fakeParams,
+      token: 'invalidToken',
+    };
+
+    if (fakeParamsWithInvalidToken.token === 'invalidToken') {
+      pagerdutyApi.mockRejectedValue({ response: { status: 401, statusText: 'Unauthorized' } });
+    } else {
+      pagerdutyApi.mockResolvedValue(makeApiResponse([
+        {
+          start: '2021-12-31T09:00:00+00:00',
+          end: '2022-01-01T09:00:00+00:00',
+          user: { summary: 'Alice' },
+        },
+        {
+          start: '2022-01-01T09:00:00+00:00',
+          end: '2022-01-02T09:00:00+00:00',
+          user: { summary: 'Alice' },
+        },
+      ]));
+    }
+
+    // When & Then
+    await expect(getScheduleShiftsByUser(fakeParamsWithInvalidToken)).rejects.toEqual({ response: { status: 401, statusText: 'Unauthorized' } });
   });
 });
 

@@ -7,75 +7,104 @@ function formattedDateTime(from, until) {
   const queryUntil = dayjs(until.concat('T09:00:00.000Z')).format('YYYY-MM-DD HH:mm:ss');
   return { queryFrom, queryUntil };
 }
+// eslint-disable-next-line consistent-return
 async function getScheduleShiftsByUser({
   from, until, token, schedule, maxShiftLength,
 }) {
-  const { queryFrom, queryUntil } = formattedDateTime(from, until);
-  const pd = api({ token });
-  const pdSchedule = await pd.get(`/schedules/${schedule}?since=${queryFrom}&until=${queryUntil}`);
-  const scheduleEntries = pdSchedule.data.schedule.final_schedule.rendered_schedule_entries;
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const {
+      queryFrom,
+      queryUntil,
+    } = formattedDateTime(from, until);
+    const pd = api({ token });
+    const pdSchedule = await pd.get(`/schedules/${schedule}?since=${queryFrom}&until=${queryUntil}`);
+    const scheduleEntries = pdSchedule.data.schedule.final_schedule.rendered_schedule_entries;
 
-  return scheduleEntries.reduce((acc, shift) => {
-    const shifts = acc;
-    const user = shift.user.summary;
+    return scheduleEntries.reduce((acc, shift) => {
+      const shifts = acc;
+      const user = shift.user.summary;
 
-    if (!shifts[user]) {
-      shifts[user] = [];
-    }
-
-    const addShift = ({ start, end }) => {
-      if (start.isAfter(from) && start.isBefore(until)) {
-        shifts[user].push({
-          start: start.toISOString(),
-          end: end.toISOString(),
-          isWeekend: isWeekend({ start }),
-          isBankHoliday: isBankHoliday({ start }),
-          isInHours: isInHours({ start, end }),
-        });
+      if (!shifts[user]) {
+        shifts[user] = [];
       }
-    };
 
-    const { start: startString, end: endString } = shift;
-    const start = dayjs(startString);
-    const end = dayjs(endString);
+      const addShift = ({
+        start,
+        end,
+      }) => {
+        if (start.isAfter(from) && start.isBefore(until)) {
+          shifts[user].push({
+            start: start.toISOString(),
+            end: end.toISOString(),
+            isWeekend: isWeekend({ start }),
+            isBankHoliday: isBankHoliday({ start }),
+            isInHours: isInHours({
+              start,
+              end,
+            }),
+          });
+        }
+      };
 
-    let shiftStart = start;
-    let maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
+      const {
+        start: startString,
+        end: endString,
+      } = shift;
+      const start = dayjs(startString);
+      const end = dayjs(endString);
 
-    while (maxShiftEnd.isBefore(end)) {
-      addShift({ start: shiftStart, end: maxShiftEnd });
-      shiftStart = maxShiftEnd;
-      maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
-    }
+      let shiftStart = start;
+      let maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
 
-    addShift({ start: shiftStart, end });
+      while (maxShiftEnd.isBefore(end)) {
+        addShift({
+          start: shiftStart,
+          end: maxShiftEnd,
+        });
+        shiftStart = maxShiftEnd;
+        maxShiftEnd = shiftStart.add(maxShiftLength, 'hour');
+      }
 
-    return shifts;
-  }, {});
+      addShift({
+        start: shiftStart,
+        end,
+      });
+
+      return shifts;
+    }, {});
+  } catch (error) {
+    throw error;
+  }
 }
 
 async function getShiftsByUser({
   from, until, token, schedules: scheduleIds, maxShiftLength,
 }) {
-  const schedules = await Promise.all(
-    scheduleIds.map((id) => getScheduleShiftsByUser({
-      from, until, token, schedule: id, maxShiftLength,
-    })),
-  );
+  // eslint-disable-next-line no-useless-catch
+  try {
+    const schedules = await Promise.all(
+      scheduleIds.map((id) => getScheduleShiftsByUser({
+        from, until, token, schedule: id, maxShiftLength,
+      })),
+    );
 
-  return schedules.reduce((acc, schedule) => {
-    const allShifts = acc;
+    return schedules.reduce((acc, schedule) => {
+      const allShifts = acc;
 
-    Object.keys(schedule).forEach((user) => {
-      if (!allShifts[user]) {
-        allShifts[user] = [];
-      }
+      Object.keys(schedule).forEach((user) => {
+        if (!allShifts[user]) {
+          allShifts[user] = [];
+        }
 
-      allShifts[user] = allShifts[user].concat(schedule[user]);
-    });
+        allShifts[user] = allShifts[user].concat(schedule[user]);
+      });
 
-    return allShifts;
-  }, {});
+      return allShifts;
+    }, {});
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports.getShiftsByUser = getShiftsByUser;

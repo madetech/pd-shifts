@@ -52,14 +52,17 @@ async function main() {
     ])
     .parse();
 
-  const shifts = await getShiftsByUser({ ...argv, schedules: argv.schedule });
-
-  if (argv.listShifts) {
-    console.log(shifts);
-  } else {
-    const totals = tally(shifts);
-    const csv = generateCsv(totals);
-    console.log(csv);
+  try {
+    const shifts = await getShiftsByUser({ ...argv, schedules: argv.schedule });
+    if (argv.listShifts) {
+      console.log(shifts);
+    } else {
+      const totals = tally(shifts);
+      const csv = generateCsv(totals);
+      console.log(csv);
+    }
+  } catch (error) {
+    console.error(error.response.statusText);
   }
 }
 
