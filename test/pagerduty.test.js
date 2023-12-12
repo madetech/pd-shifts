@@ -248,14 +248,11 @@ describe('formattedDateTime()', () => {
     // Given
     const from = '2023-11-23';
     const until = '2023-11-29';
-    const maxShiftLength = 24;
 
     // When
-    const dateTime = formattedDateTime(from, until, maxShiftLength);
+    const { queryFrom, queryUntil } = formattedDateTime(from, until);
     // Then
-    expect(dateTime)
-      .toHaveProperty('queryFrom', '2023-11-23 09:00:00');
-    expect(dateTime)
-      .toHaveProperty('queryUntil', '2023-11-29 09:00:00');
+    expect(queryFrom).toEqual('2023-11-23 09:00:00');
+    expect(queryUntil).toEqual('2023-11-29 09:00:00');
   });
 });

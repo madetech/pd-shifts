@@ -24,8 +24,7 @@ async function getScheduleShiftsByUser({
     }
 
     const addShift = ({ start, end }) => {
-      // if (start.isAfter(from) && start.isBefore(until)) {
-      if (!start.isBefore(queryFrom) && !start.isAfter(queryUntil)) {
+      if (start.isAfter(from) && start.isBefore(until)) {
         shifts[user].push({
           start: start.toISOString(),
           end: end.toISOString(),
